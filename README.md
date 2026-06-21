@@ -1,4 +1,4 @@
-# 🤖 DifferentialBot RRT Simulator
+# DifferentialBot RRT Simulator
 
 A 2D simulation of a **differential-drive robot** performing autonomous navigation using the **Rapidly-exploring Random Tree (RRT)** path planning algorithm, built with **PyGame** and **Pymunk**.
 
@@ -6,7 +6,7 @@ The robot explores a hallway-style map, detects obstacles via an ultrasonic sens
 
 ---
 
-## 📸 Screenshots
+## Screenshots
 
 <p align="center">
   <img src="Screenshot 2026-02-05 192552.png" width="48%" alt="Simulation mid-navigation"/>
@@ -19,7 +19,7 @@ The robot explores a hallway-style map, detects obstacles via an ultrasonic sens
 
 ---
 
-## ✨ Features
+## Features
 
 - **RRT Path Planning** — Rapidly-exploring Random Tree generates a collision-free path from start to goal on-the-fly
 - **Differential Drive Physics** — Realistic kinematic model using Pymunk's rigid body simulation
@@ -32,7 +32,7 @@ The robot explores a hallway-style map, detects obstacles via an ultrasonic sens
 
 ---
 
-## 🗂️ Project Structure
+## Project Structure
 
 ```
 Codes/
@@ -51,7 +51,7 @@ Codes/
 
 ---
 
-## 🧠 Architecture Overview
+## Architecture Overview
 
 ```
 ┌──────────────┐     GPS + IMU     ┌─────────────────┐
@@ -90,7 +90,7 @@ Codes/
 
 ---
 
-## ⚙️ Requirements
+## Requirements
 
 - Python **3.10+**
 - [pygame](https://www.pygame.org/) — rendering and event loop
@@ -105,7 +105,7 @@ pip install pygame pymunk numpy
 
 ---
 
-## 🚀 Running the Simulation
+## Running the Simulation
 
 ```bash
 cd Codes
@@ -119,7 +119,7 @@ python main.py
 
 ---
 
-## 🔧 Configuration
+## Configuration
 
 Key parameters are defined in `main.py` and the module constructors:
 
@@ -136,7 +136,7 @@ Key parameters are defined in `main.py` and the module constructors:
 
 ---
 
-## 🗺️ Map Layouts
+## Map Layouts
 
 Three alternative obstacle layouts are available in `Obstacles.py`:
 
@@ -154,7 +154,7 @@ obstacles = Obstacles.hallway_obstacles(tile_size)  # Change this line
 
 ---
 
-## 🔌 Hardware Deployment (Raspberry Pi Pico)
+## Hardware Deployment (Raspberry Pi Pico)
 
 The codebase is structured for portability. Both `WheelMotorDrivers.py` and `UARTReceiver.py` contain commented-out **MicroPython** code for Raspberry Pi Pico GPIO control (L298N motor driver via PWM pins).
 
@@ -165,7 +165,7 @@ To deploy:
 
 ---
 
-## 📐 Algorithm Details
+## Algorithm Details
 
 ### RRT (Rapidly-exploring Random Tree)
 1. Initialize tree with robot's current grid position
@@ -190,7 +190,7 @@ State vector: `[x, y, vx, vy]`
 
 ---
 
-## 📄 License
+## License
 
 This project is open source. Feel free to use, modify, and build upon it.
 
