@@ -1,6 +1,6 @@
 import math
 
-class PIDController:
+class HeadingController:
     def __init__(self):
         self.wheel_speeds = 50
 

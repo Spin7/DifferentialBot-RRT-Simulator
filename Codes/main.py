@@ -4,7 +4,7 @@ import pymunk.pygame_util
 from collections import deque
 
 import KalmanFilter as FK
-import PIDController as PID
+import HeadingController as h_contol  
 import RRT_Search as RRT
 import SensorModules as sensors
 import Lines
@@ -207,7 +207,7 @@ gps_module = sensors.GPS_Module(bot, tile_size)
 imu_module = sensors.IMU_Module(bot)
 ultrasonic_sensor = sensors.UltraSonicSensor(bot, tile_size, obstacles)
 
-pid_controller = PID.PIDController()
+heading_controller = h_contol.HeadingController()
 driver = WMdrivers.WheelMotorDrivers(bot, 0, 0)
 receiver = Receiver.UARTReceiver(1, 2, gps_module, imu_module, ultrasonic_sensor)
 
@@ -229,9 +229,9 @@ controller = Control.Controller(
     MAP_WIDTH,
     WINDOW_HEIGHT,
     my_map,
-    pid_controller,
+    heading_controller,
     kalman,
-    2,
+    5,
     driver,
     receiver
 )

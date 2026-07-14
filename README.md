@@ -2,20 +2,20 @@
 
 A 2D simulation of a **differential-drive robot** performing autonomous navigation using the **Rapidly-exploring Random Tree (RRT)** path planning algorithm, built with **PyGame** and **Pymunk**.
 
-The robot explores a hallway-style map, detects obstacles via an ultrasonic sensor, builds a live occupancy map, and follows the RRT-computed path using a heading-based PID controller — all fused through a Kalman Filter.
+The robot explores a hallway-style map, detects obstacles via an ultrasonic sensor, builds a live occupancy map, and follows the RRT-computed path using a **threshold-based heading controller** — all fused through a Kalman Filter.
 
 ---
 
 ## Screenshots
 
 <p align="center">
-  <img src="Screenshot 2026-02-05 192552.png" width="48%" alt="Simulation mid-navigation"/>
+  <img src="Sim_initial_path.png" width="48%" alt="Initial RRT path computed"/>
   &nbsp;
-  <img src="Screenshot 2026-02-05 192653.png" width="48%" alt="Robot reaching goal"/>
+  <img src="Sim_recalculate_path.png" width="48%" alt="RRT path recalculated after obstacle detection"/>
 </p>
 
-> **Left:** Robot mid-navigation following the RRT path (cyan dots) through a hallway map with obstacles (orange). The sidebar shows real-time telemetry and a minimap.  
-> **Right:** Robot arrives near the goal (green square) after successfully navigating the environment.
+> **Left:** Initial RRT path computed from the robot's start position to the goal (green square). Cyan dots show the generated waypoints through the hallway map.  
+> **Right:** Robot replanning — a new RRT path is computed on-the-fly after the ultrasonic sensor detects an obstacle too close.
 
 ---
 
@@ -26,7 +26,7 @@ The robot explores a hallway-style map, detects obstacles via an ultrasonic sens
 - **Sensor Fusion** — GPS and IMU data fused through a **Kalman Filter** for smooth position estimation
 - **Ultrasonic Sensor** — Cone-shaped proximity detection triggers obstacle avoidance and replanning
 - **Live Occupancy Mapping** — The robot dynamically records detected obstacle positions
-- **PID Heading Controller** — Steers the robot toward each RRT waypoint by adjusting individual wheel speeds
+- **Threshold-Based Heading Controller** — Bang-bang steering: spins in place to align heading with each waypoint, then drives forward at full speed
 - **Dark Sci-Fi UI** — Real-time sidebar with minimap, robot state telemetry, and Pause/Resume button
 - **Embedded hardware stub** — `WheelMotorDrivers` and `UARTReceiver` include commented-out MicroPython (Raspberry Pi Pico) code for real deployment
 
@@ -39,7 +39,7 @@ Codes/
 ├── main.py              # Entry point: simulation loop, rendering, UI
 ├── RRT_Search.py        # RRT algorithm (node tree, steering, path filtering)
 ├── Control.py           # High-level controller: path following + replanning logic
-├── PIDController.py     # Heading-based PID that adjusts left/right wheel speeds
+├── HeadingController.py # Threshold-based bang-bang heading controller (adjusts left/right wheel speeds)
 ├── KalmanFilter.py      # 4-state Kalman Filter (x, y, vx, vy) fusing GPS + IMU
 ├── SensorModules.py     # GPS, IMU and Ultrasonic sensor simulation classes
 ├── Mapping.py           # Occupancy map builder and path comparison utilities
@@ -68,7 +68,8 @@ Codes/
                                   │  │ RRT Search │  │
                                   │  └────────────┘  │
                                   │  ┌────────────┐  │
-                                  │  │    PID     │  │
+                                  │  │  Heading   │  │
+                                  │  │ Controller │  │
                                   │  └────────────┘  │
                                   └────────┬─────────┘
                                            │ wheel speeds
@@ -84,7 +85,7 @@ Codes/
 2. `KalmanFilter` predicts & updates the state estimate
 3. `Controller` checks for obstacle proximity → triggers backward motion + replanning if needed
 4. `RRTPatchSearch` generates a new tree from current position to goal when needed
-5. `PIDController` computes left/right wheel speeds to steer toward the next waypoint
+5. `HeadingController.adjust_wheel_speeds()` applies threshold-based bang-bang steering toward the next waypoint
 6. `WheelMotorDrivers` applies speeds to the Pymunk physics body
 7. `Mapping` records new obstacle detections into the occupancy map
 
@@ -129,7 +130,7 @@ Key parameters are defined in `main.py` and the module constructors:
 | `tile_size` | `main.py` | `10` px | Grid cell size |
 | `MAP_WIDTH / HEIGHT` | `main.py` | `800 × 600` | Simulation canvas size |
 | `max_iterations` | `RRT_Search.py` | `3000` | Max RRT tree expansion steps |
-| `distance_at_node` | `Control.py` | `2` | RRT step size in grid units |
+| `distance_at_node` | `main.py` | `5` | RRT step size in grid units |
 | `process_variance` | `KalmanFilter.py` | `1e-4` | Kalman process noise |
 | `measurement_variance_gps/imu` | `KalmanFilter.py` | `1e-2` | Sensor noise covariance |
 | Obstacle layout | `Obstacles.py` | `hallway_obstacles` | Swap for `obstacles1`, `obstacles2`, `obstacles3` |
@@ -182,17 +183,32 @@ State vector: `[x, y, vx, vy]`
 - **Update:** fuses GPS (position) and IMU (velocity) measurements  
 - Separate measurement variances allow tuning sensor trust
 
-### PID Heading Controller
-- Computes `atan2` angle toward the next waypoint
-- If heading error `> π/15` rad: spin left (turn right)
-- If heading error `< -π/15` rad: spin right (turn left)
-- Otherwise: drive forward at full speed
+### Heading Controller (`HeadingController.py`)
+A simple **threshold-based (bang-bang) controller** — *not* a PID — that steers the robot toward each RRT waypoint:
+
+```python
+alpha      = atan2(yd - y, xd - x)   # Desired angle to next waypoint
+angle_diff = alpha - theta            # Heading error
+
+if   angle_diff >  π/15:  → spin left   (L = -50, R = +50)
+elif angle_diff < -π/15:  → spin right  (L = +50, R = -50)
+else:                     → drive forward at full speed (L = R = 100)
+```
+
+- The **deadband** of `π/15` (~12°) prevents oscillation around the target heading
+- No integral or derivative terms are used; wheel speeds switch discretely between three fixed states
 
 ---
 
 ## License
 
 This project is open source. Feel free to use, modify, and build upon it.
+
+---
+
+## Demo Video
+
+[![Watch the demo on YouTube](https://img.youtube.com/vi/YVPpjKtE6y0/maxresdefault.jpg)](https://youtu.be/YVPpjKtE6y0)
 
 ---
 

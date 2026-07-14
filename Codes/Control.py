@@ -12,7 +12,7 @@ import time
 class Controller:
     def __init__(
         self, destination, tile_size, width, height,
-        map, pid_controller, kalman_filter, distance_at_node,
+        map, heading_controller, kalman_filter, distance_at_node,
         driver, receiver_data
     ):
         self.destination = destination
@@ -23,7 +23,7 @@ class Controller:
         self.current_target_index = 0
         self.generate_path_flag = True
 
-        self.pid_controller = pid_controller
+        self.heading_controller = heading_controller
         self.kalman_filter = kalman_filter
         self.driver = driver
         self.receiver_data = receiver_data
@@ -73,7 +73,7 @@ class Controller:
         xd, yd = self.current_path[idx + 1]
         x, y, theta = self.get_state_data()
 
-        r_iz, r_der = self.pid_controller.adjust_wheel_speeds(
+        r_iz, r_der = self.heading_controller.adjust_wheel_speeds(
             x, y, xd, yd, theta
         )
         self.driver.set_motor_speeds(r_der, r_iz)
