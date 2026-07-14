@@ -9,9 +9,9 @@ The robot explores a hallway-style map, detects obstacles via an ultrasonic sens
 ## Screenshots
 
 <p align="center">
-  <img src="Sim_initial_path.png" width="48%" alt="Initial RRT path computed"/>
+  <img src="Multimedia/Sim_initial_path.png" width="48%" alt="Initial RRT path computed"/>
   &nbsp;
-  <img src="Sim_recalculate_path.png" width="48%" alt="RRT path recalculated after obstacle detection"/>
+  <img src="Multimedia/Sim_recalculate_path.png" width="48%" alt="RRT path recalculated after obstacle detection"/>
 </p>
 
 > **Left:** Initial RRT path computed from the robot's start position to the goal (green square). Cyan dots show the generated waypoints through the hallway map.  
